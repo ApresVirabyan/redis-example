@@ -45,6 +45,8 @@ public class RedisRepositoryImpl implements RedisRepository {
 
     @Override
     public Movie findMovie(String id) {
-        return (Movie)hashOperations.get(KEY, id);
+        Movie movie = (Movie)hashOperations.get(KEY, id);
+        System.out.println("hashOperations " + hashOperations.get(KEY, id));
+        return movie;
     }
 }

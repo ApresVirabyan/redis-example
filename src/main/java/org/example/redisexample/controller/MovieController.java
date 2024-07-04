@@ -2,6 +2,7 @@ package org.example.redisexample.controller;
 
 import org.example.redisexample.model.Movie;
 import org.example.redisexample.repository.RedisRepository;
+import org.example.redisexample.service.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,28 +17,16 @@ import java.util.Map;
 public class MovieController {
 
     @Autowired
-    private RedisRepository redisRepository;
+    private MovieService movieService;
 
     @RequestMapping("/")
     public String index(){
         return "index";
     }
 
-    @RequestMapping("/keys")
-    public @ResponseBody Map<Object, Object> keys(){
-        return redisRepository.findAllMovies();
-    }
-
     @RequestMapping("/values")
     public @ResponseBody Map<String, String> findAll(){
-        Map<Object, Object> aa = redisRepository.findAllMovies();
-        Map<String, String> map = new HashMap<>();
-
-        for(Map.Entry<Object, Object> entry: aa.entrySet()){
-            String key = (String) entry.getKey();
-            map.put(key, aa.get(key).toString());
-        }
-        return map;
+        return movieService.findAllMovies();
     }
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
@@ -46,7 +35,7 @@ public class MovieController {
             @RequestParam String value) {
 
         Movie movie = new Movie(key, value);
-        redisRepository.add(movie);
+        movieService.add(movie);
 
         return new ResponseEntity<>(HttpStatus.OK);
 
@@ -54,8 +43,15 @@ public class MovieController {
 
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public ResponseEntity<String> delete(@RequestParam String key){
-        redisRepository.delete(key);
+        movieService.delete(key);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/movie", method = RequestMethod.GET)
+    public ResponseEntity<Movie> findMovie(@RequestParam String id){
+        Movie movie =  movieService.findMovie(id);
+        System.out.println(movie);
+        return movie != null ? new ResponseEntity<>(movie, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
 }
